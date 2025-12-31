@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(shared_types_nomad)
+project(ari_shared_types)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -12,7 +12,7 @@ find_package(rclcpp REQUIRED)
 
 
 add_library(${PROJECT_NAME} 
- src/shared_types_nomad.cpp
+ src/ari_shared_types.cpp
 )
 
 target_include_directories(
@@ -37,8 +37,8 @@ install(
   DESTINATION include
 )
 
-install(TARGETS shared_types_nomad
-  EXPORT export_shared_types_nomad
+install(TARGETS ari_shared_types
+  EXPORT ari_export_shared_types
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
