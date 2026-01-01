@@ -27,7 +27,7 @@ SOFTWARE.
 #pragma once
 #include "rclcpp/rclcpp.hpp"
 #include <string>
-
+#include <optional>
 
 /**
  * @file status.hpp
@@ -40,102 +40,16 @@ SOFTWARE.
  * @{
  */
 
-
+namespace ari {
 
 class Status;
-
-#define NOMAD_RC_RETURN_ON_ERROR(x)                     \
-  do {                                                  \
-    Status _x = x;                                      \
-    if(!_x.ok()) {                                      \
-      return hardware_interface::CallbackReturn::ERROR; \
-    }                                                   \
-  } while(false)
-
-#define NOMAD_RC_RETURN_ON_ERROR_MSG(x, name, msg)        \
-  do {                                                    \
-    Status _x = x;                                        \
-    if(!_x.ok()) {                                        \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), msg); \
-      return hardware_interface::CallbackReturn::ERROR;   \
-    }                                                     \
-  } while(false)
-
-#define NOMAD_RC_RETURN_ON_ERROR_NAM(x, name)                        \
-  do {                                                               \
-    Status _x = x;                                                   \
-    if(!_x.ok()) {                                                   \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), _x.to_string()); \
-      return hardware_interface::CallbackReturn::ERROR;              \
-    }                                                                \
-  } while(false)
-
-#define NOMAD_RC_ASSING_OR_RETURN(assign, result)       \
-  auto _xsar##assign = result;                          \
-  do {                                                  \
-    if(!_xsar##assign.ok()) {                           \
-      return hardware_interface::CallbackReturn::ERROR; \
-    }                                                   \
-  } while(false);                                       \
-  auto assign = std::move(_xsar##assign.valueOrDie());
-
-
-#define NOMAD_RC_ASSING_TO_OR_RETURN(assign, result)    \
-  do {                                                  \
-    auto _xsar##assign = result;                        \
-    if(!_xsar##assign.ok())                             \
-      return hardware_interface::CallbackReturn::ERROR; \
-    assign = std::move(_xsar##assign.valueOrDie());     \
-  } while(false);
-
-
-#define NOMAD_RC_ASSIGN_OR_RETURN_MSG(assign, result, name, msg) \
-  do {                                                           \
-    auto _xsar##assign = result;                                 \
-    if(!_xsar##assign.ok()) {                                    \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), msg);        \
-      return hardware_interface::CallbackReturn::ERROR;          \
-    }                                                            \
-    assign = std::move(_xsar##assign.valueOrDie());              \
-  } while(false);
-
-#define NOMAD_RC_ASSIGN_OR_RETURN_NAM(assign, result, name)                     \
-  do {                                                                          \
-    auto _xsar##assign = result;                                                \
-    if(!_xsar##assign.ok()) {                                                   \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), _xsar##assign.to_string()); \
-      return hardware_interface::CallbackReturn::ERROR;                         \
-    }                                                                           \
-    assign = std::move(_xsar##assign.valueOrDie());                             \
-  } while(false);
-
-#define NOMAD_RC_ASSIGN_TO_OR_RETURN_MSG(assign, result, name, msg) \
-  do {                                                              \
-    auto _xsar##assign = result;                                    \
-    if(!_xsar##assign.ok()) {                                       \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), msg);           \
-      return hardware_interface::CallbackReturn::ERROR;             \
-    }                                                               \
-    assign = std::move(_xsar##assign.valueOrDie());                 \
-  } while(false);
-
-#define NOMAD_RC_ASSIGN_TO_OR_RETURN_NAM(assign, result, name)                  \
-  do {                                                                          \
-    auto _xsar##assign = result;                                                \
-    if(!_xsar##assign.ok()) {                                                   \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), _xsar##assign.to_string()); \
-      return hardware_interface::CallbackReturn::ERROR;                         \
-    }                                                                           \
-    assign = std::move(_xsar##assign.valueOrDie());                             \
-  } while(false);
-
 /**
  * @brief Macro for returning on error in a single line.
  *
  * This macro is used to return from a function if the result is not OK.
  * usefull to avoid having to write the same check in every function.
  */
-#define NOMAD_RETURN_ON_ERROR(x) \
+#define ARI_RETURN_ON_ERROR(x) \
   do {                           \
     Status _x = x.status();      \
     if(!_x.ok())                 \
@@ -145,7 +59,7 @@ class Status;
 /**
  * @brief  Macro for creat new veriable with a value from a result and returning on error in a single line.
  */
-#define NOMAD_ASSING_OR_RETURN(assign, result) \
+#define ARI_ASSING_OR_RETURN(assign, result) \
   auto _xsar##assign = result;                 \
   do {                                         \
     if(!_xsar##assign.ok())                    \
@@ -157,7 +71,7 @@ class Status;
  * @brief Macro for assigning a value to a already exisiting veriable from a result and returning on error in a single line.
  *
  */
-#define NOMAD_ASSING_TO_OR_RETURN(assign, result)   \
+#define ARI_ASSING_TO_OR_RETURN(assign, result)   \
   do {                                              \
     auto _xsar##assign = result;                    \
     if(!_xsar##assign.ok())                         \
@@ -223,221 +137,208 @@ class Status;
  *
  * @var StatusCode::TimeOut
  * Operation failed due to a timeout.
- *
- * @var StatusCode::DeviceDisbaled
- * Operation failed because the device is disabled.
- *
- * @var StatusCode::Disconnected
- * Operation failed because the device is disconnected.
  */
-enum class StatusCode : char {
-  OK                 = 0,
-  OutOfMemory        = 1,
-  KeyError           = 2,
-  TypeError          = 3,
-  Invalid            = 4,
-  IOError            = 5,
-  CapacityError      = 6,
-  IndexError         = 7,
-  Cancelled          = 8,
-  UnknownError       = 9,
-  NotImplemented     = 10,
+enum class StatusCode : char
+{
+  OK = 0,
+  OutOfMemory = 1,
+  KeyError = 2,
+  TypeError = 3,
+  Invalid = 4,
+  IOError = 5,
+  CapacityError = 6,
+  IndexError = 7,
+  Cancelled = 8,
+  UnknownError = 9,
+  NotImplemented = 10,
   SerializationError = 11,
-  RError             = 13,
+  RError = 13,
   // Gandiva range of errors
-  CodeGenError              = 40,
+  CodeGenError = 40,
   ExpressionValidationError = 41,
-  ExecutionError            = 42,
+  ExecutionError = 42,
   // Continue generic codes.
   AlreadyExists = 45,
-  TimeOut       = 46,
-
-  DeviceDisbaled = 49,
-  Disconnected   = 50
+  TimeOut = 46,
 };
 
 /**
  * @brief Status class used as return type.
  *
- * This class is used as a return type for functions that can fail. It contains a status code and a message.
- * For easy use, there are static methods for creating common statuses with some messages.
- * The Status can be converted to a Result object that contains the status and the value.
+ * This class is used as a return type for functions that can fail. It contains a status
+ * code and a message. For easy use, there are static methods for creating common statuses
+ * with some messages. The Status can be converted to a Result object that contains the
+ * status and the value.
  */
-class Status {
-public:
-  Status(const Status &status) = default;
+class Status
+{
+ public:
+  Status(const Status& status) = default;
 
-  Status(bool value) : _status(StatusCode::OK), _message("") {
-    if(!value) {
-      _status  = StatusCode::Invalid;
-      _message = "Value is false";
-    }
+  [[nodiscard]] static Status OK() { return Status(StatusCode::OK, nullptr, "OK"); };
+
+  [[nodiscard]] static Status OK(std::string &&msg)
+  {
+    return Status(StatusCode::OK, std::move(msg), "OK|");
   };
 
-  [[nodiscard]] static Status OK() {
-    return Status(StatusCode::OK, "");
+  [[nodiscard]] static Status OutOfMemory(std::string &&msg)
+  {
+    return Status(StatusCode::OutOfMemory, std::move(msg), "OutOfMemory|");
   };
 
-  [[nodiscard]] static Status OutOfMemory(const std::string msg) {
-    return Status(StatusCode::OutOfMemory, msg);
+  [[nodiscard]] static Status KeyError(std::string &&msg)
+  {
+    return Status(StatusCode::KeyError, std::move(msg), "KeyError|");
   };
 
-  [[nodiscard]] static Status KeyError(const std::string msg) {
-    return Status(StatusCode::KeyError, msg);
+  [[nodiscard]] static Status TypeError(std::string &&msg)
+  {
+    return Status(StatusCode::TypeError, std::move(msg), "TypeError|");
   };
 
-  [[nodiscard]] static Status TypeError(const std::string msg) {
-    return Status(StatusCode::TypeError, msg);
+  [[nodiscard]] static Status Invalid(std::string &&msg)
+  {
+    return Status(StatusCode::Invalid, std::move(msg), "Invalid|");
   };
 
-  [[nodiscard]] static Status Invalid(const std::string msg) {
-    return Status(StatusCode::Invalid, msg);
+  [[nodiscard]] static Status IOError(std::string &&msg)
+  {
+    return Status(StatusCode::IOError, std::move(msg), "IOError|");
   };
 
-  [[nodiscard]] static Status IOError(const std::string msg) {
-    return Status(StatusCode::IOError, msg);
+  [[nodiscard]] static Status CapacityError(std::string &&msg)
+  {
+    return Status(StatusCode::CapacityError, std::move(msg), "CapacityError|");
   };
 
-  [[nodiscard]] static Status CapacityError(const std::string msg) {
-    return Status(StatusCode::CapacityError, msg);
+  [[nodiscard]] static Status IndexError(std::string &&msg)
+  {
+    return Status(StatusCode::IndexError, std::move(msg), "IndexError|");
   };
 
-  [[nodiscard]] static Status IndexError(const std::string msg) {
-    return Status(StatusCode::IndexError, msg);
+  [[nodiscard]] static Status Cancelled(std::string &&msg)
+  {
+    return Status(StatusCode::Cancelled, std::move(msg), "Cancelled|");
   };
 
-  [[nodiscard]] static Status Cancelled(const std::string msg) {
-    return Status(StatusCode::Cancelled, msg);
+  [[nodiscard]] static Status UnknownError(std::string &&msg)
+  {
+    return Status(StatusCode::UnknownError, std::move(msg), "UnknownError|");
   };
 
-  [[nodiscard]] static Status UnknownError(const std::string msg) {
-    return Status(StatusCode::UnknownError, msg);
+  [[nodiscard]] static Status NotImplemented(std::string &&msg)
+  {
+    return Status(StatusCode::NotImplemented, std::move(msg), "NotImplemented|");
   };
 
-  [[nodiscard]] static Status NotImplemented(const std::string msg) {
-    return Status(StatusCode::NotImplemented, msg);
+  [[nodiscard]] static Status SerializationError(std::string &&msg)
+  {
+    return Status(StatusCode::SerializationError, std::move(msg), "SerializationError|");
   };
 
-  [[nodiscard]] static Status SerializationError(const std::string msg) {
-    return Status(StatusCode::SerializationError, msg);
+  [[nodiscard]] static Status RError(std::string &&msg)
+  {
+    return Status(StatusCode::RError, std::move(msg), "RError|");
   };
 
-  [[nodiscard]] static Status RError(const std::string msg) {
-    return Status(StatusCode::RError, msg);
+  [[nodiscard]] static Status CodeGenError(std::string &&msg)
+  {
+    return Status(StatusCode::CodeGenError, std::move(msg), "CodeGenError|");
   };
 
-  [[nodiscard]] static Status CodeGenError(const std::string msg) {
-    return Status(StatusCode::CodeGenError, msg);
+  [[nodiscard]] static Status ExpressionValidationError(std::string &&msg)
+  {
+    return Status(
+      StatusCode::ExpressionValidationError, std::move(msg), "ExpressionValidationError|");
   };
 
-  [[nodiscard]] static Status ExpressionValidationError(const std::string msg) {
-    return Status(StatusCode::ExpressionValidationError, msg);
+  [[nodiscard]] static Status ExecutionError(std::string &&msg)
+  {
+    return Status(StatusCode::ExecutionError, std::move(msg), "ExecutionError|");
   };
 
-  [[nodiscard]] static Status ExecutionError(const std::string msg) {
-    return Status(StatusCode::ExecutionError, msg);
+  [[nodiscard]] static Status AlreadyExists(std::string &&msg)
+  {
+    return Status(StatusCode::AlreadyExists, std::move(msg), "AlreadyExists|");
   };
 
-  [[nodiscard]] static Status AlreadyExists(const std::string msg) {
-    return Status(StatusCode::AlreadyExists, msg);
+  [[nodiscard]] static Status TimeOut(std::string &&msg)
+  {
+    return Status(StatusCode::TimeOut, std::move(msg), "TimeOut|");
   };
-
-  [[nodiscard]] static Status TimeOut(const std::string msg) {
-    return Status(StatusCode::TimeOut, msg);
-  };
-
-  [[nodiscard]] static Status DeviceDisbaled(const std::string msg) {
-    return Status(StatusCode::DeviceDisbaled, msg);
-  };
-
-  [[nodiscard]] static Status Disconnected(const std::string msg) {
-    return Status(StatusCode::Disconnected, msg);
-  };
-
 
   /// @brief get the status
   /// @return 0 if OK or some error code
-  [[nodiscard]] StatusCode status_code() {
-    return _status;
-  };
+  [[nodiscard]] StatusCode status_code() { return _status; };
 
-  [[nodiscard]] Status valueOrDie() {
-    return *this;
-  };
+  [[nodiscard]] Status valueOrDie() { return *this; };
 
   /// @brief check if the status is OK
-  bool ok() {
-    return _status == StatusCode::OK;
-  };
+  bool ok() { return _status == StatusCode::OK; };
 
   /// @brief get status from status
-  [[nodiscard]] Status &status() {
-    return *this;
-  };
+  [[nodiscard]] Status& status() { return *this; };
 
   /// @brief get the message of the status
-  [[nodiscard]] const std::string to_string() {
-    return _message.empty() ? "OK" : _message;
+  [[nodiscard]] const std::string to_string()
+  {
+    return _message;
   };
 
-  bool operator==(const Status &other) const {
-    return _status == other._status;
-  }
+  bool operator==(const Status& other) const { return _status == other._status; }
 
-  bool operator!=(const Status &other) const {
-    return !(_status != other._status);
-  }
+  bool operator==(const StatusCode& other) const { return _status == other; }
 
-private:
-  Status(const StatusCode status, std::string message) : _status(status), _message(message){};
+  bool operator!=(const Status& other) const { return !(*this == other); }
+
+ private:
+  Status(StatusCode status, std::string &&message, std::string && status_message)
+    : _status(status)
+    , _message(std::move(status_message+message)){}
   StatusCode _status;
-  std::string _message;
+  std::string  _message;
 };
 
 /**
  * @brief Result class used as return type.
  *
- * This class is used as a return type for functions that can fail. It contains a status and a value.
- * The Result can be converted to a Status object that contains the status and the message.
+ * This class is used as a return type for functions that can fail. It contains a status
+ * and a value. The Result can be converted to a Status object that contains the status
+ * and the message.
  *
  */
-template <typename T> struct Result {
-public:
-  /// @brief Create a new Result from status for clean return from functions when error occurs.
-  Result(Status status) : _status(status){};
 
-  /// @brief Return a new Result with value and status OK.
-  static auto OK(const T &value) -> Result<T> {
-    return Result<T>(value, Status::OK());
+template<typename T>
+struct Result
+{
+ public:
+  Result(const Status& status)
+    : _status(std::move(status)) {};
+
+  static Result<T> OK(T&& value) { return Result<T>(std::move(value), Status::OK()); }
+
+  static Result<T> Propagate(T&& value, Status&& status)
+  {
+    return Result<T>(std::move(value), std::move(status));
   }
 
-  static auto Propagate(const T &value, const Status &status) -> Result<T> {
-    return Result<T>(value, status);
-  }
+  [[nodiscard]] T& valueOrDie() { return _value.value(); }
 
-  /// @brief Get the value of the result or weard error if the status is not OK.
-  /// You should check if the status is ok before calling this function.
-  [[nodiscard]] T &valueOrDie() {
-    return _value;
-  }
+  [[nodiscard]] Status& status() { return _status; }
 
+  [[nodiscard]] bool ok() { return _status.ok(); }
 
-  /// @brief Get the status of the result.
-  [[nodiscard]] Status &status() {
-    return _status;
-  }
+  Result<T>& operator=(const Status& other) { return Result<T>(other); }
 
-  /// @brief Check if the status is OK.
-  [[nodiscard]] bool ok() {
-    return _status.ok();
-  }
+ private:
+  Result(T&& value, Status&& status)
+    : _value(std::move(value))
+    , _status(std::move(status)) {};
 
-  Result<T> &operator=(const Status &other) {
-    return Result<T>(other);
-  }
-
-private:
-  Result(T value, Status status) : _value(value), _status(status){};
-  T _value;
+  std::optional<T> _value;
+  // T _value;
   Status _status;
 };
+
+}
