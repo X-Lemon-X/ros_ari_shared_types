@@ -28,7 +28,6 @@ SOFTWARE.
 #include "status.hpp"
 
 
-
 /**
  * @file status_hardware.hpp
  * @brief  Status class macros for hardware interface.
@@ -38,7 +37,7 @@ namespace ari {
 
 class Status;
 
-#define ARI_HW_RETURN_ON_ERROR(x)                     \
+#define ARI_HW_RETURN_ON_ERROR(x)                       \
   do {                                                  \
     Status _x = x;                                      \
     if(!_x.ok()) {                                      \
@@ -46,7 +45,7 @@ class Status;
     }                                                   \
   } while(false)
 
-#define ARI_HW_RETURN_ON_ERROR_MSG(x, name, msg)        \
+#define ARI_HW_RETURN_ON_ERROR_MSG(x, name, msg)          \
   do {                                                    \
     Status _x = x;                                        \
     if(!_x.ok()) {                                        \
@@ -55,7 +54,7 @@ class Status;
     }                                                     \
   } while(false)
 
-#define ARI_HW_RETURN_ON_ERROR_NAM(x, name)                        \
+#define ARI_HW_RETURN_ON_ERROR_NAM(x, name)                          \
   do {                                                               \
     Status _x = x;                                                   \
     if(!_x.ok()) {                                                   \
@@ -64,7 +63,7 @@ class Status;
     }                                                                \
   } while(false)
 
-#define ARI_HW_ASSING_OR_RETURN(assign, result)       \
+#define ARI_HW_ASIGN_OR_RETURN(assign, result)          \
   auto _xsar##assign = result;                          \
   do {                                                  \
     if(!_xsar##assign.ok()) {                           \
@@ -74,7 +73,7 @@ class Status;
   auto assign = std::move(_xsar##assign.valueOrDie());
 
 
-#define ARI_HW_ASSING_TO_OR_RETURN(assign, result)    \
+#define ARI_HW_ASIGN_TO_OR_RETURN(assign, result)       \
   do {                                                  \
     auto _xsar##assign = result;                        \
     if(!_xsar##assign.ok())                             \
@@ -84,16 +83,16 @@ class Status;
 
 
 #define ARI_HW_ASSIGN_OR_RETURN_MSG(assign, result, name, msg) \
-  do {                                                           \
-    auto _xsar##assign = result;                                 \
-    if(!_xsar##assign.ok()) {                                    \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), msg);        \
-      return hardware_interface::CallbackReturn::ERROR;          \
-    }                                                            \
-    assign = std::move(_xsar##assign.valueOrDie());              \
+  do {                                                         \
+    auto _xsar##assign = result;                               \
+    if(!_xsar##assign.ok()) {                                  \
+      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), msg);      \
+      return hardware_interface::CallbackReturn::ERROR;        \
+    }                                                          \
+    assign = std::move(_xsar##assign.valueOrDie());            \
   } while(false);
 
-#define ARI_HW_ASSIGN_OR_RETURN_NAM(assign, result, name)                     \
+#define ARI_HW_ASSIGN_OR_RETURN_NAM(assign, result, name)                       \
   do {                                                                          \
     auto _xsar##assign = result;                                                \
     if(!_xsar##assign.ok()) {                                                   \
@@ -104,16 +103,16 @@ class Status;
   } while(false);
 
 #define ARI_HW_ASSIGN_TO_OR_RETURN_MSG(assign, result, name, msg) \
-  do {                                                              \
-    auto _xsar##assign = result;                                    \
-    if(!_xsar##assign.ok()) {                                       \
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), msg);           \
-      return hardware_interface::CallbackReturn::ERROR;             \
-    }                                                               \
-    assign = std::move(_xsar##assign.valueOrDie());                 \
+  do {                                                            \
+    auto _xsar##assign = result;                                  \
+    if(!_xsar##assign.ok()) {                                     \
+      RCLCPP_ERROR_STREAM(rclcpp::get_logger(name), msg);         \
+      return hardware_interface::CallbackReturn::ERROR;           \
+    }                                                             \
+    assign = std::move(_xsar##assign.valueOrDie());               \
   } while(false);
 
-#define ARI_HW_ASSIGN_TO_OR_RETURN_NAM(assign, result, name)                  \
+#define ARI_HW_ASSIGN_TO_OR_RETURN_NAM(assign, result, name)                    \
   do {                                                                          \
     auto _xsar##assign = result;                                                \
     if(!_xsar##assign.ok()) {                                                   \
@@ -123,4 +122,4 @@ class Status;
     assign = std::move(_xsar##assign.valueOrDie());                             \
   } while(false);
 
-}  // namespace ari
+} // namespace ari
