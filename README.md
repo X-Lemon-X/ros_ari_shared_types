@@ -1,0 +1,1 @@
+# ARI SHARED TYPES

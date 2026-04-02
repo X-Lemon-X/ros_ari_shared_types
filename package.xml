@@ -3,7 +3,7 @@
 <package format="3">
   <name>ari_shared_types</name>
   <version>0.1.0</version>
-  <description>Shared types for C++</description>
+  <description>Status types for C++</description>
   <maintainer email="dodpat02@gmail.com">Patryk Dudziński</maintainer>
   <license>MIT</license>
 
@@ -11,6 +11,7 @@
 
 
   <depend>rclcpp</depend>
+  <depend>hardware_interface</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
